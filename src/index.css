@@ -57,6 +57,11 @@
     --category-fitness: 32 95% 50%;
     --category-learning: 45 93% 47%;
 
+    /* Mood colors */
+    --mood-low: 0 84% 60%;
+    --mood-mid: 45 93% 47%;
+    --mood-high: 142 60% 45%;
+
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(32, 95%, 55%) 0%, hsl(25, 95%, 50%) 100%);
     --gradient-success: linear-gradient(135deg, hsl(142, 60%, 50%) 0%, hsl(142, 70%, 40%) 100%);

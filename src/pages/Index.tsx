@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { Plus, Target, CheckCircle2, Clock, TrendingUp, Calendar } from 'lucide-react';
+import { Plus, Target, CheckCircle2, Clock, TrendingUp, Calendar, Smile, Heart } from 'lucide-react';
 import { useHabits } from '@/hooks/useHabits';
+import { useMood } from '@/hooks/useMood';
 import { Category, Habit } from '@/types/habit';
 import { Button } from '@/components/ui/button';
 import { HabitCard } from '@/components/HabitCard';
@@ -10,6 +11,8 @@ import { ProgressChart } from '@/components/ProgressChart';
 import { StatsCard } from '@/components/StatsCard';
 import { WeekCalendar } from '@/components/WeekCalendar';
 import { CategoryFilter } from '@/components/CategoryFilter';
+import { MoodEntry } from '@/components/MoodEntry';
+import { MoodChart } from '@/components/MoodChart';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,6 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Index = () => {
   const {
@@ -35,6 +39,14 @@ const Index = () => {
     getTodayStats,
   } = useHabits();
 
+  const {
+    setMood,
+    getTodayMood,
+    getWeekMoodData,
+    getMonthMoodData,
+    getAverageMood,
+  } = useMood();
+
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -45,6 +57,10 @@ const Index = () => {
   const todayStats = getTodayStats();
   const weekProgress = getWeekProgress(selectedDate);
   const monthProgress = getMonthProgress(30);
+  const todayMood = getTodayMood();
+  const weekMoodData = getWeekMoodData();
+  const monthMoodData = getMonthMoodData(30);
+  const avgMood = getAverageMood(7);
 
   const filteredHabits =
     selectedCategory === 'all' ? habits : getHabitsByCategory(selectedCategory);
@@ -87,7 +103,7 @@ const Index = () => {
 
       <main className="container max-w-5xl mx-auto px-4 py-6 space-y-8">
         {/* Stats Cards */}
-        <section className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-fade-in">
+        <section className="grid grid-cols-2 md:grid-cols-5 gap-4 animate-fade-in">
           <StatsCard
             title="Total Habits"
             value={habits.length}
@@ -114,6 +130,13 @@ const Index = () => {
             icon={TrendingUp}
             trend={todayStats.rate >= 50 ? 'up' : 'down'}
           />
+          <StatsCard
+            title="Avg Mood"
+            value={avgMood !== null ? avgMood.toString() : '-'}
+            subtitle="last 7 days"
+            icon={Heart}
+            trend={avgMood !== null ? (avgMood >= 6 ? 'up' : avgMood >= 4 ? 'neutral' : 'down') : undefined}
+          />
         </section>
 
         {/* Week Calendar */}
@@ -129,21 +152,62 @@ const Index = () => {
           />
         </section>
 
-        {/* Progress Chart */}
+        {/* Mood & Progress Charts */}
         <section className="bg-card rounded-2xl p-5 shadow-card animate-fade-in">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-semibold text-foreground">Monthly Progress</h2>
+          <Tabs defaultValue="mood" className="w-full">
+            <div className="flex items-center justify-between mb-4">
+              <TabsList className="bg-secondary">
+                <TabsTrigger value="mood" className="gap-2">
+                  <Smile className="h-4 w-4" />
+                  Mood
+                </TabsTrigger>
+                <TabsTrigger value="habits" className="gap-2">
+                  <TrendingUp className="h-4 w-4" />
+                  Habits
+                </TabsTrigger>
+              </TabsList>
             </div>
-          </div>
-          {monthProgress.some((p) => p.total > 0) ? (
-            <ProgressChart data={monthProgress} type="area" />
-          ) : (
-            <div className="h-[200px] flex items-center justify-center text-muted-foreground">
-              Add some habits to see your progress chart
-            </div>
-          )}
+
+            <TabsContent value="mood" className="mt-0">
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Mood Entry */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium text-muted-foreground">Today's Mood</h3>
+                  <MoodEntry
+                    date={new Date()}
+                    existingEntry={todayMood}
+                    onSave={setMood}
+                  />
+                </div>
+                
+                {/* Mood Charts */}
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-sm font-medium text-muted-foreground mb-3">Weekly Mood</h3>
+                    <MoodChart data={weekMoodData} height={150} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-muted-foreground mb-3">Monthly Trend</h3>
+                    <MoodChart data={monthMoodData} height={150} />
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="habits" className="mt-0">
+              <div className="flex items-center gap-2 mb-4">
+                <TrendingUp className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-semibold text-foreground">Monthly Progress</h3>
+              </div>
+              {monthProgress.some((p) => p.total > 0) ? (
+                <ProgressChart data={monthProgress} type="area" />
+              ) : (
+                <div className="h-[200px] flex items-center justify-center text-muted-foreground">
+                  Add some habits to see your progress chart
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         </section>
 
         {/* Habits Section */}
