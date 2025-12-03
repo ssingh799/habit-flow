@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { Plus, Target, CheckCircle2, Clock, TrendingUp, Calendar, Smile, Heart } from 'lucide-react';
+import { Plus, Target, CheckCircle2, Clock, TrendingUp, Calendar, Smile, Heart, FileText } from 'lucide-react';
 import { useHabits } from '@/hooks/useHabits';
 import { useMood } from '@/hooks/useMood';
 import { Category, Habit } from '@/types/habit';
@@ -13,6 +13,7 @@ import { WeekCalendar } from '@/components/WeekCalendar';
 import { CategoryFilter } from '@/components/CategoryFilter';
 import { MoodEntry } from '@/components/MoodEntry';
 import { MoodChart } from '@/components/MoodChart';
+import { MonthlyReport } from '@/components/MonthlyReport';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +29,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 const Index = () => {
   const {
     habits,
+    completions,
     addHabit,
     updateHabit,
     deleteHabit,
@@ -40,6 +42,7 @@ const Index = () => {
   } = useHabits();
 
   const {
+    moodEntries,
     setMood,
     getTodayMood,
     getWeekMoodData,
@@ -152,7 +155,7 @@ const Index = () => {
           />
         </section>
 
-        {/* Mood & Progress Charts */}
+        {/* Mood, Progress & Reports */}
         <section className="bg-card rounded-2xl p-5 shadow-card animate-fade-in">
           <Tabs defaultValue="mood" className="w-full">
             <div className="flex items-center justify-between mb-4">
@@ -164,6 +167,10 @@ const Index = () => {
                 <TabsTrigger value="habits" className="gap-2">
                   <TrendingUp className="h-4 w-4" />
                   Habits
+                </TabsTrigger>
+                <TabsTrigger value="report" className="gap-2">
+                  <FileText className="h-4 w-4" />
+                  Monthly Report
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -206,6 +213,16 @@ const Index = () => {
                   Add some habits to see your progress chart
                 </div>
               )}
+            </TabsContent>
+
+            <TabsContent value="report" className="mt-0">
+              <MonthlyReport
+                habits={habits}
+                completions={completions}
+                monthProgress={monthProgress}
+                monthMoodData={monthMoodData}
+                moodEntries={moodEntries}
+              />
             </TabsContent>
           </Tabs>
         </section>
