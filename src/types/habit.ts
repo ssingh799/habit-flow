@@ -1,6 +1,8 @@
 export type Category = 'health' | 'work' | 'personal' | 'fitness' | 'learning';
 export type Frequency = 'daily' | 'weekly' | 'monthly';
 
+export type MoodTag = 'stressed' | 'energetic' | 'tired' | 'happy' | 'anxious' | 'calm' | 'motivated' | 'sad';
+
 export interface Habit {
   id: string;
   name: string;
@@ -11,8 +13,16 @@ export interface Habit {
 
 export interface HabitCompletion {
   habitId: string;
-  date: string; // YYYY-MM-DD format
+  date: string;
   completed: boolean;
+}
+
+export interface MoodEntry {
+  date: string;
+  mood: number; // 1-10 scale
+  notes?: string;
+  tags: MoodTag[];
+  createdAt: string;
 }
 
 export interface DailyProgress {
