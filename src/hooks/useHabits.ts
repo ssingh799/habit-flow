@@ -1,66 +1,156 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Habit, HabitCompletion, Category, Frequency, DailyProgress } from '@/types/habit';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, subDays, parseISO } from 'date-fns';
-
-const HABITS_KEY = 'habit-tracker-habits';
-const COMPLETIONS_KEY = 'habit-tracker-completions';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 export function useHabits() {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [completions, setCompletions] = useState<HabitCompletion[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const { toast } = useToast();
 
-  // Load from localStorage
+  // Fetch habits from database
   useEffect(() => {
-    const storedHabits = localStorage.getItem(HABITS_KEY);
-    const storedCompletions = localStorage.getItem(COMPLETIONS_KEY);
-    
-    if (storedHabits) setHabits(JSON.parse(storedHabits));
-    if (storedCompletions) setCompletions(JSON.parse(storedCompletions));
-  }, []);
+    if (!user) {
+      setHabits([]);
+      setCompletions([]);
+      setLoading(false);
+      return;
+    }
 
-  // Save to localStorage
-  useEffect(() => {
-    localStorage.setItem(HABITS_KEY, JSON.stringify(habits));
-  }, [habits]);
+    const fetchData = async () => {
+      setLoading(true);
+      
+      const [habitsRes, completionsRes] = await Promise.all([
+        supabase.from('habits').select('*').eq('user_id', user.id),
+        supabase.from('habit_completions').select('*').eq('user_id', user.id),
+      ]);
 
-  useEffect(() => {
-    localStorage.setItem(COMPLETIONS_KEY, JSON.stringify(completions));
-  }, [completions]);
+      if (habitsRes.error) {
+        toast({ title: 'Error loading habits', description: habitsRes.error.message, variant: 'destructive' });
+      } else {
+        setHabits(habitsRes.data.map(h => ({
+          id: h.id,
+          name: h.name,
+          category: h.category as Category,
+          frequency: h.frequency as Frequency,
+          createdAt: h.created_at,
+        })));
+      }
 
-  const addHabit = useCallback((name: string, category: Category, frequency: Frequency) => {
-    const newHabit: Habit = {
-      id: crypto.randomUUID(),
-      name,
-      category,
-      frequency,
-      createdAt: new Date().toISOString(),
+      if (completionsRes.error) {
+        toast({ title: 'Error loading completions', description: completionsRes.error.message, variant: 'destructive' });
+      } else {
+        setCompletions(completionsRes.data.map(c => ({
+          habitId: c.habit_id,
+          date: c.date,
+          completed: c.completed,
+        })));
+      }
+      
+      setLoading(false);
     };
+
+    fetchData();
+  }, [user, toast]);
+
+  const addHabit = useCallback(async (name: string, category: Category, frequency: Frequency) => {
+    if (!user) return null;
+
+    const { data, error } = await supabase
+      .from('habits')
+      .insert({ user_id: user.id, name, category, frequency })
+      .select()
+      .single();
+
+    if (error) {
+      toast({ title: 'Error adding habit', description: error.message, variant: 'destructive' });
+      return null;
+    }
+
+    const newHabit: Habit = {
+      id: data.id,
+      name: data.name,
+      category: data.category as Category,
+      frequency: data.frequency as Frequency,
+      createdAt: data.created_at,
+    };
+    
     setHabits(prev => [...prev, newHabit]);
     return newHabit;
-  }, []);
+  }, [user, toast]);
 
-  const updateHabit = useCallback((id: string, updates: Partial<Omit<Habit, 'id' | 'createdAt'>>) => {
+  const updateHabit = useCallback(async (id: string, updates: Partial<Omit<Habit, 'id' | 'createdAt'>>) => {
+    const { error } = await supabase
+      .from('habits')
+      .update(updates)
+      .eq('id', id);
+
+    if (error) {
+      toast({ title: 'Error updating habit', description: error.message, variant: 'destructive' });
+      return;
+    }
+
     setHabits(prev => prev.map(h => h.id === id ? { ...h, ...updates } : h));
-  }, []);
+  }, [toast]);
 
-  const deleteHabit = useCallback((id: string) => {
+  const deleteHabit = useCallback(async (id: string) => {
+    const { error } = await supabase
+      .from('habits')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      toast({ title: 'Error deleting habit', description: error.message, variant: 'destructive' });
+      return;
+    }
+
     setHabits(prev => prev.filter(h => h.id !== id));
     setCompletions(prev => prev.filter(c => c.habitId !== id));
-  }, []);
+  }, [toast]);
 
-  const toggleCompletion = useCallback((habitId: string, date: string) => {
-    setCompletions(prev => {
-      const existing = prev.find(c => c.habitId === habitId && c.date === date);
-      if (existing) {
-        return prev.map(c => 
+  const toggleCompletion = useCallback(async (habitId: string, date: string) => {
+    if (!user) return;
+
+    const existing = completions.find(c => c.habitId === habitId && c.date === date);
+    
+    if (existing) {
+      // Update existing completion
+      const { error } = await supabase
+        .from('habit_completions')
+        .update({ completed: !existing.completed })
+        .eq('habit_id', habitId)
+        .eq('date', date);
+
+      if (error) {
+        toast({ title: 'Error updating completion', description: error.message, variant: 'destructive' });
+        return;
+      }
+
+      setCompletions(prev => 
+        prev.map(c => 
           c.habitId === habitId && c.date === date 
             ? { ...c, completed: !c.completed }
             : c
-        );
+        )
+      );
+    } else {
+      // Create new completion
+      const { error } = await supabase
+        .from('habit_completions')
+        .insert({ user_id: user.id, habit_id: habitId, date, completed: true });
+
+      if (error) {
+        toast({ title: 'Error saving completion', description: error.message, variant: 'destructive' });
+        return;
       }
-      return [...prev, { habitId, date, completed: true }];
-    });
-  }, []);
+
+      setCompletions(prev => [...prev, { habitId, date, completed: true }]);
+    }
+  }, [user, completions, toast]);
 
   const isCompleted = useCallback((habitId: string, date: string) => {
     const completion = completions.find(c => c.habitId === habitId && c.date === date);
@@ -72,7 +162,7 @@ export function useHabits() {
       if (h.frequency === 'daily') return true;
       if (h.frequency === 'weekly') {
         const dayOfWeek = parseISO(date).getDay();
-        return dayOfWeek === 1; // Monday
+        return dayOfWeek === 1;
       }
       if (h.frequency === 'monthly') {
         const dayOfMonth = parseISO(date).getDate();
@@ -133,6 +223,7 @@ export function useHabits() {
   return {
     habits,
     completions,
+    loading,
     addHabit,
     updateHabit,
     deleteHabit,

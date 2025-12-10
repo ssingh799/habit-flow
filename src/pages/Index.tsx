@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { Plus, Target, CheckCircle2, Clock, TrendingUp, Calendar, Smile, Heart, FileText } from 'lucide-react';
+import { Plus, Target, CheckCircle2, Clock, TrendingUp, Calendar, Smile, Heart, FileText, LogOut } from 'lucide-react';
 import { useHabits } from '@/hooks/useHabits';
 import { useMood } from '@/hooks/useMood';
+import { useAuth } from '@/contexts/AuthContext';
 import { Category, Habit } from '@/types/habit';
 import { Button } from '@/components/ui/button';
 import { HabitCard } from '@/components/HabitCard';
@@ -27,9 +28,11 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Index = () => {
+  const { user, signOut } = useAuth();
   const {
     habits,
     completions,
+    loading: habitsLoading,
     addHabit,
     updateHabit,
     deleteHabit,
@@ -43,12 +46,15 @@ const Index = () => {
 
   const {
     moodEntries,
+    loading: moodLoading,
     setMood,
     getTodayMood,
     getWeekMoodData,
     getMonthMoodData,
     getAverageMood,
   } = useMood();
+
+  const isLoading = habitsLoading || moodLoading;
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all');
@@ -90,19 +96,30 @@ const Index = () => {
             <div>
               <h1 className="text-2xl font-bold text-foreground">Habit Tracker</h1>
               <p className="text-sm text-muted-foreground">
-                {format(new Date(), 'EEEE, MMMM d, yyyy')}
+                {user?.email} • {format(new Date(), 'EEEE, MMMM d, yyyy')}
               </p>
             </div>
-            <Button
-              onClick={() => setIsAddDialogOpen(true)}
-              className="gradient-primary text-primary-foreground shadow-glow"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Habit
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => setIsAddDialogOpen(true)}
+                className="gradient-primary text-primary-foreground shadow-glow"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Habit
+              </Button>
+              <Button variant="outline" size="icon" onClick={signOut} title="Sign out">
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </header>
+
+      {isLoading && (
+        <div className="fixed inset-0 bg-background/50 flex items-center justify-center z-50">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      )}
 
       <main className="container max-w-5xl mx-auto px-4 py-6 space-y-8">
         {/* Stats Cards */}
