@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
-import { Plus, Target, CheckCircle2, Clock, TrendingUp, Calendar, Smile, Heart, FileText, LogOut } from 'lucide-react';
+import { Plus, Target, CheckCircle2, Clock, TrendingUp, Calendar, Smile, Heart, FileText, LogOut, User } from 'lucide-react';
 import { useHabits } from '@/hooks/useHabits';
 import { useMood } from '@/hooks/useMood';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,6 +18,7 @@ import { CategoryFilter } from '@/components/CategoryFilter';
 import { MoodEntry } from '@/components/MoodEntry';
 import { MoodChart } from '@/components/MoodChart';
 import { MonthlyReport } from '@/components/MonthlyReport';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -148,6 +149,8 @@ const Index = () => {
                 Add Habit
               </Button>
               
+              <ThemeToggle />
+              
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Avatar className="h-9 w-9 cursor-pointer ring-2 ring-primary/20 hover:ring-primary/40 transition-all">
@@ -159,6 +162,7 @@ const Index = () => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuItem onClick={() => navigate('/profile')}>
+                    <User className="h-4 w-4 mr-2" />
                     Profile Settings
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
