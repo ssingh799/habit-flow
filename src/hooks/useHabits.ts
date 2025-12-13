@@ -190,12 +190,11 @@ export function useHabits() {
     return days.map(day => getDailyProgress(format(day, 'yyyy-MM-dd')));
   }, [getDailyProgress]);
 
-  const getMonthProgress = useCallback((days: number = 30): DailyProgress[] => {
-    const today = new Date();
+  const getMonthProgress = useCallback((days: number = 30, referenceDate: Date = new Date()): DailyProgress[] => {
     const progress: DailyProgress[] = [];
     
     for (let i = days - 1; i >= 0; i--) {
-      const date = subDays(today, i);
+      const date = subDays(referenceDate, i);
       progress.push(getDailyProgress(format(date, 'yyyy-MM-dd')));
     }
     

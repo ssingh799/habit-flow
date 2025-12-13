@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { format } from 'date-fns';
+import { format, endOfMonth } from 'date-fns';
 import { Plus, Target, CheckCircle2, Clock, TrendingUp, Calendar, Smile, Heart, FileText, LogOut, User } from 'lucide-react';
 import { useHabits } from '@/hooks/useHabits';
 import { useMood } from '@/hooks/useMood';
@@ -102,6 +102,7 @@ const Index = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
   const [deletingHabit, setDeletingHabit] = useState<Habit | null>(null);
+  const [reportMonth, setReportMonth] = useState(new Date());
 
   const dateStr = format(selectedDate, 'yyyy-MM-dd');
   const todayStats = getTodayStats();
@@ -111,6 +112,11 @@ const Index = () => {
   const weekMoodData = getWeekMoodData();
   const monthMoodData = getMonthMoodData(30);
   const avgMood = getAverageMood(7);
+  
+  // Report data for selected month
+  const reportEndDate = useMemo(() => endOfMonth(reportMonth), [reportMonth]);
+  const reportMonthProgress = useMemo(() => getMonthProgress(30, reportEndDate), [getMonthProgress, reportEndDate]);
+  const reportMonthMoodData = useMemo(() => getMonthMoodData(30, reportEndDate), [getMonthMoodData, reportEndDate]);
 
   const filteredHabits =
     selectedCategory === 'all' ? habits : getHabitsByCategory(selectedCategory);
@@ -302,9 +308,11 @@ const Index = () => {
               <MonthlyReport
                 habits={habits}
                 completions={completions}
-                monthProgress={monthProgress}
-                monthMoodData={monthMoodData}
+                monthProgress={reportMonthProgress}
+                monthMoodData={reportMonthMoodData}
                 moodEntries={moodEntries}
+                selectedMonth={reportMonth}
+                onMonthChange={setReportMonth}
               />
             </TabsContent>
           </Tabs>

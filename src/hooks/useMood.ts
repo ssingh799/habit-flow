@@ -113,10 +113,10 @@ export function useMood() {
     return data;
   }, [getMoodForDate]);
 
-  const getMonthMoodData = useCallback((days: number = 30): DailyMoodData[] => {
+  const getMonthMoodData = useCallback((days: number = 30, referenceDate: Date = new Date()): DailyMoodData[] => {
     const data: DailyMoodData[] = [];
     for (let i = days - 1; i >= 0; i--) {
-      const date = subDays(new Date(), i);
+      const date = subDays(referenceDate, i);
       const dateStr = format(date, 'yyyy-MM-dd');
       const entry = getMoodForDate(dateStr);
       data.push({
