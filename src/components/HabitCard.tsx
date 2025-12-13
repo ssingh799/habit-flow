@@ -14,11 +14,11 @@ interface HabitCardProps {
 }
 
 const categoryIcons: Record<Category, React.ReactNode> = {
-  health: <Heart className="h-4 w-4" />,
-  work: <Briefcase className="h-4 w-4" />,
-  personal: <User className="h-4 w-4" />,
-  fitness: <Dumbbell className="h-4 w-4" />,
-  learning: <BookOpen className="h-4 w-4" />,
+  health: <Heart className="h-3 w-3 sm:h-4 sm:w-4" />,
+  work: <Briefcase className="h-3 w-3 sm:h-4 sm:w-4" />,
+  personal: <User className="h-3 w-3 sm:h-4 sm:w-4" />,
+  fitness: <Dumbbell className="h-3 w-3 sm:h-4 sm:w-4" />,
+  learning: <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />,
 };
 
 const categoryStyles: Record<Category, string> = {
@@ -43,7 +43,7 @@ export function HabitCard({ habit, isCompleted, onToggle, onEdit, onDelete }: Ha
   return (
     <div
       className={cn(
-        "group relative flex items-center gap-4 p-4 rounded-xl bg-card shadow-card transition-all duration-300",
+        "group relative flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg sm:rounded-xl bg-card shadow-card transition-all duration-300",
         "hover:shadow-card-hover",
         isCompleted && "bg-accent/5 border border-accent/20"
       )}
@@ -51,7 +51,7 @@ export function HabitCard({ habit, isCompleted, onToggle, onEdit, onDelete }: Ha
       {/* Completion indicator line */}
       <div
         className={cn(
-          "absolute left-0 top-0 bottom-0 w-1 rounded-l-xl transition-all duration-300",
+          "absolute left-0 top-0 bottom-0 w-1 rounded-l-lg sm:rounded-l-xl transition-all duration-300",
           isCompleted ? "bg-accent" : "bg-muted"
         )}
       />
@@ -61,7 +61,7 @@ export function HabitCard({ habit, isCompleted, onToggle, onEdit, onDelete }: Ha
         <Checkbox
           checked={isCompleted}
           onCheckedChange={handleToggle}
-          className="h-6 w-6"
+          className="h-5 w-5 sm:h-6 sm:w-6"
         />
         {isAnimating && (
           <div className="absolute inset-0 rounded-md bg-accent/30 animate-pulse-ring" />
@@ -72,45 +72,45 @@ export function HabitCard({ habit, isCompleted, onToggle, onEdit, onDelete }: Ha
       <div className="flex-1 min-w-0">
         <h3
           className={cn(
-            "font-semibold text-foreground transition-all duration-200",
+            "font-semibold text-sm sm:text-base text-foreground transition-all duration-200 truncate",
             isCompleted && "line-through text-muted-foreground"
           )}
         >
           {habit.name}
         </h3>
-        <div className="flex items-center gap-2 mt-1">
+        <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5 sm:mt-1 flex-wrap">
           <span
             className={cn(
-              "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium",
+              "inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium",
               categoryStyles[habit.category]
             )}
           >
             {categoryIcons[habit.category]}
-            {habit.category}
+            <span className="hidden xs:inline">{habit.category}</span>
           </span>
-          <span className="text-xs text-muted-foreground capitalize">
+          <span className="text-[10px] sm:text-xs text-muted-foreground capitalize">
             {habit.frequency}
           </span>
         </div>
       </div>
 
-      {/* Actions */}
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+      {/* Actions - Always visible on mobile, hover on desktop */}
+      <div className="flex items-center gap-0.5 sm:gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-muted-foreground hover:text-foreground"
+          className="h-7 w-7 sm:h-8 sm:w-8 text-muted-foreground hover:text-foreground"
           onClick={onEdit}
         >
-          <Pencil className="h-4 w-4" />
+          <Pencil className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         </Button>
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-muted-foreground hover:text-destructive"
+          className="h-7 w-7 sm:h-8 sm:w-8 text-muted-foreground hover:text-destructive"
           onClick={onDelete}
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         </Button>
       </div>
     </div>

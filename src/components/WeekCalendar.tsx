@@ -18,7 +18,7 @@ export function WeekCalendar({ selectedDate, onSelectDate, weekProgress }: WeekC
   };
 
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-1 sm:gap-2 overflow-x-auto pb-1">
       {days.map((day) => {
         const progress = getProgressForDate(day);
         const isSelected = isSameDay(day, selectedDate);
@@ -30,7 +30,7 @@ export function WeekCalendar({ selectedDate, onSelectDate, weekProgress }: WeekC
             key={day.toISOString()}
             onClick={() => onSelectDate(day)}
             className={cn(
-              "flex-1 flex flex-col items-center p-3 rounded-xl transition-all duration-200",
+              "flex-1 min-w-[40px] sm:min-w-0 flex flex-col items-center p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200",
               "hover:bg-secondary",
               isSelected && "bg-primary text-primary-foreground shadow-glow",
               !isSelected && today && "ring-2 ring-primary/30"
@@ -38,7 +38,7 @@ export function WeekCalendar({ selectedDate, onSelectDate, weekProgress }: WeekC
           >
             <span
               className={cn(
-                "text-xs font-medium uppercase",
+                "text-[10px] sm:text-xs font-medium uppercase",
                 isSelected ? "text-primary-foreground/80" : "text-muted-foreground"
               )}
             >
@@ -46,7 +46,7 @@ export function WeekCalendar({ selectedDate, onSelectDate, weekProgress }: WeekC
             </span>
             <span
               className={cn(
-                "text-lg font-bold mt-1",
+                "text-sm sm:text-lg font-bold mt-0.5 sm:mt-1",
                 isSelected ? "text-primary-foreground" : "text-foreground"
               )}
             >
@@ -54,7 +54,7 @@ export function WeekCalendar({ selectedDate, onSelectDate, weekProgress }: WeekC
             </span>
             
             {/* Progress indicator */}
-            <div className="mt-2 w-full h-1.5 rounded-full bg-muted overflow-hidden">
+            <div className="mt-1 sm:mt-2 w-full h-1 sm:h-1.5 rounded-full bg-muted overflow-hidden">
               <div
                 className={cn(
                   "h-full rounded-full transition-all duration-500",

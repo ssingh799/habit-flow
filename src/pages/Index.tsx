@@ -132,30 +132,33 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-lg border-b border-border">
-        <div className="container max-w-5xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Habit Tracker</h1>
-              <p className="text-sm text-muted-foreground">
-                {user?.email} • {format(new Date(), 'EEEE, MMMM d, yyyy')}
+        <div className="container max-w-5xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-lg sm:text-2xl font-bold text-foreground truncate">Habit Tracker</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground truncate">
+                <span className="hidden sm:inline">{user?.email} • </span>
+                {format(new Date(), 'EEE, MMM d')}
+                <span className="hidden md:inline">, {format(new Date(), 'yyyy')}</span>
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
               <Button
                 onClick={() => setIsAddDialogOpen(true)}
-                className="gradient-primary text-primary-foreground shadow-glow"
+                className="gradient-primary text-primary-foreground shadow-glow h-8 sm:h-9 px-2 sm:px-4"
+                size="sm"
               >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Habit
+                <Plus className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Add Habit</span>
               </Button>
               
               <ThemeToggle />
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Avatar className="h-9 w-9 cursor-pointer ring-2 ring-primary/20 hover:ring-primary/40 transition-all">
+                  <Avatar className="h-8 w-8 sm:h-9 sm:w-9 cursor-pointer ring-2 ring-primary/20 hover:ring-primary/40 transition-all">
                     <AvatarImage src={avatarUrl || undefined} alt="Profile" />
-                    <AvatarFallback className="bg-primary/10 text-primary text-sm">
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs sm:text-sm">
                       {getInitials()}
                     </AvatarFallback>
                   </Avatar>
@@ -183,9 +186,9 @@ const Index = () => {
         </div>
       )}
 
-      <main className="container max-w-5xl mx-auto px-4 py-6 space-y-8">
+      <main className="container max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-8">
         {/* Stats Cards */}
-        <section className="grid grid-cols-2 md:grid-cols-5 gap-4 animate-fade-in">
+        <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4 animate-fade-in">
           <StatsCard
             title="Total Habits"
             value={habits.length}
@@ -218,14 +221,15 @@ const Index = () => {
             subtitle="last 7 days"
             icon={Heart}
             trend={avgMood !== null ? (avgMood >= 6 ? 'up' : avgMood >= 4 ? 'neutral' : 'down') : undefined}
+            className="col-span-2 sm:col-span-1"
           />
         </section>
 
         {/* Week Calendar */}
-        <section className="bg-card rounded-2xl p-5 shadow-card animate-fade-in">
-          <div className="flex items-center gap-2 mb-4">
-            <Calendar className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-semibold text-foreground">This Week</h2>
+        <section className="bg-card rounded-xl sm:rounded-2xl p-3 sm:p-5 shadow-card animate-fade-in">
+          <div className="flex items-center gap-2 mb-3 sm:mb-4">
+            <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+            <h2 className="text-base sm:text-lg font-semibold text-foreground">This Week</h2>
           </div>
           <WeekCalendar
             selectedDate={selectedDate}
@@ -235,30 +239,30 @@ const Index = () => {
         </section>
 
         {/* Mood, Progress & Reports */}
-        <section className="bg-card rounded-2xl p-5 shadow-card animate-fade-in">
+        <section className="bg-card rounded-xl sm:rounded-2xl p-3 sm:p-5 shadow-card animate-fade-in">
           <Tabs defaultValue="mood" className="w-full">
-            <div className="flex items-center justify-between mb-4">
-              <TabsList className="bg-secondary">
-                <TabsTrigger value="mood" className="gap-2">
-                  <Smile className="h-4 w-4" />
-                  Mood
+            <div className="flex items-center justify-between mb-3 sm:mb-4 overflow-x-auto">
+              <TabsList className="bg-secondary w-full sm:w-auto">
+                <TabsTrigger value="mood" className="gap-1 sm:gap-2 text-xs sm:text-sm flex-1 sm:flex-initial">
+                  <Smile className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span>Mood</span>
                 </TabsTrigger>
-                <TabsTrigger value="habits" className="gap-2">
-                  <TrendingUp className="h-4 w-4" />
-                  Habits
+                <TabsTrigger value="habits" className="gap-1 sm:gap-2 text-xs sm:text-sm flex-1 sm:flex-initial">
+                  <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span>Habits</span>
                 </TabsTrigger>
-                <TabsTrigger value="report" className="gap-2">
-                  <FileText className="h-4 w-4" />
-                  Monthly Report
+                <TabsTrigger value="report" className="gap-1 sm:gap-2 text-xs sm:text-sm flex-1 sm:flex-initial">
+                  <FileText className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden xs:inline">Monthly </span>Report
                 </TabsTrigger>
               </TabsList>
             </div>
 
             <TabsContent value="mood" className="mt-0">
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 {/* Mood Entry */}
-                <div className="space-y-4">
-                  <h3 className="text-sm font-medium text-muted-foreground">Today's Mood</h3>
+                <div className="space-y-3 sm:space-y-4">
+                  <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">Today's Mood</h3>
                   <MoodEntry
                     date={new Date()}
                     existingEntry={todayMood}
@@ -267,28 +271,28 @@ const Index = () => {
                 </div>
                 
                 {/* Mood Charts */}
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-3">Weekly Mood</h3>
-                    <MoodChart data={weekMoodData} height={150} />
+                    <h3 className="text-xs sm:text-sm font-medium text-muted-foreground mb-2 sm:mb-3">Weekly Mood</h3>
+                    <MoodChart data={weekMoodData} height={120} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-3">Monthly Trend</h3>
-                    <MoodChart data={monthMoodData} height={150} />
+                    <h3 className="text-xs sm:text-sm font-medium text-muted-foreground mb-2 sm:mb-3">Monthly Trend</h3>
+                    <MoodChart data={monthMoodData} height={120} />
                   </div>
                 </div>
               </div>
             </TabsContent>
 
             <TabsContent value="habits" className="mt-0">
-              <div className="flex items-center gap-2 mb-4">
-                <TrendingUp className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold text-foreground">Monthly Progress</h3>
+              <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                <h3 className="text-base sm:text-lg font-semibold text-foreground">Monthly Progress</h3>
               </div>
               {monthProgress.some((p) => p.total > 0) ? (
                 <ProgressChart data={monthProgress} type="area" />
               ) : (
-                <div className="h-[200px] flex items-center justify-center text-muted-foreground">
+                <div className="h-[150px] sm:h-[200px] flex items-center justify-center text-muted-foreground text-sm">
                   Add some habits to see your progress chart
                 </div>
               )}
@@ -308,10 +312,10 @@ const Index = () => {
 
         {/* Habits Section */}
         <section className="animate-fade-in">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-            <h2 className="text-lg font-semibold text-foreground">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4">
+            <h2 className="text-base sm:text-lg font-semibold text-foreground">
               Today's Habits
-              <span className="ml-2 text-sm font-normal text-muted-foreground">
+              <span className="ml-2 text-xs sm:text-sm font-normal text-muted-foreground">
                 ({dailyHabits.length} habits)
               </span>
             </h2>
