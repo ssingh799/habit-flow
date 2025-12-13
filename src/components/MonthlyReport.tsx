@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { format, parseISO, startOfWeek, endOfWeek, eachWeekOfInterval, subDays } from 'date-fns';
+import { format, parseISO, startOfWeek, endOfWeek, eachWeekOfInterval, subDays, subMonths, addMonths, endOfMonth, isSameMonth } from 'date-fns';
 import { 
   Trophy, 
   Flame, 
@@ -11,13 +11,16 @@ import {
   Clock,
   Star,
   Zap,
-  Award
+  Award,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { DailyProgress, Habit, HabitCompletion, MoodEntry } from '@/types/habit';
 import { DailyMoodData } from '@/hooks/useMood';
 import { MoodChart } from './MoodChart';
 import { ProgressChart } from './ProgressChart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import {
   LineChart,
   Line,
@@ -34,6 +37,8 @@ interface MonthlyReportProps {
   monthProgress: DailyProgress[];
   monthMoodData: DailyMoodData[];
   moodEntries: MoodEntry[];
+  selectedMonth: Date;
+  onMonthChange: (date: Date) => void;
 }
 
 interface InsightCardProps {
@@ -64,8 +69,21 @@ export function MonthlyReport({
   completions, 
   monthProgress, 
   monthMoodData,
-  moodEntries 
+  moodEntries,
+  selectedMonth,
+  onMonthChange
 }: MonthlyReportProps) {
+  const isCurrentMonth = isSameMonth(selectedMonth, new Date());
+  
+  const handlePreviousMonth = () => {
+    onMonthChange(subMonths(selectedMonth, 1));
+  };
+  
+  const handleNextMonth = () => {
+    if (!isCurrentMonth) {
+      onMonthChange(addMonths(selectedMonth, 1));
+    }
+  };
   // Calculate total completed vs pending
   const monthlyStats = useMemo(() => {
     const totalTasks = monthProgress.reduce((acc, p) => acc + p.total, 0);
@@ -185,6 +203,34 @@ export function MonthlyReport({
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      {/* Month Navigation */}
+      <div className="flex items-center justify-between">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handlePreviousMonth}
+          className="gap-1"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          <span className="hidden sm:inline">Previous</span>
+        </Button>
+        
+        <h2 className="text-base sm:text-lg font-semibold text-foreground">
+          {format(selectedMonth, 'MMMM yyyy')}
+        </h2>
+        
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleNextMonth}
+          disabled={isCurrentMonth}
+          className="gap-1"
+        >
+          <span className="hidden sm:inline">Next</span>
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
+
       {/* Stats Overview */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
         <Card className="bg-card border-border/50">
