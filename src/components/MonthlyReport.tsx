@@ -46,14 +46,14 @@ interface InsightCardProps {
 
 function InsightCard({ icon: Icon, title, value, subtitle, color = 'primary' }: InsightCardProps) {
   return (
-    <div className="flex items-start gap-3 p-4 rounded-xl bg-secondary/50 border border-border/50">
-      <div className={`p-2 rounded-lg bg-${color}/10`}>
-        <Icon className={`h-5 w-5 text-${color}`} />
+    <div className="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 rounded-lg sm:rounded-xl bg-secondary/50 border border-border/50">
+      <div className={`p-1.5 sm:p-2 rounded-md sm:rounded-lg bg-${color}/10 flex-shrink-0`}>
+        <Icon className={`h-4 w-4 sm:h-5 sm:w-5 text-${color}`} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs text-muted-foreground font-medium">{title}</p>
-        <p className="text-sm font-semibold text-foreground truncate">{value}</p>
-        {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
+        <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">{title}</p>
+        <p className="text-xs sm:text-sm font-semibold text-foreground truncate">{value}</p>
+        {subtitle && <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{subtitle}</p>}
       </div>
     </div>
   );
@@ -184,60 +184,60 @@ export function MonthlyReport({
   }, [monthProgress]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Stats Overview */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
         <Card className="bg-card border-border/50">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Target className="h-5 w-5 text-primary" />
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 rounded-md sm:rounded-lg bg-primary/10 flex-shrink-0">
+                <Target className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Total Habits</p>
-                <p className="text-2xl font-bold text-foreground">{habits.length}</p>
+              <div className="min-w-0">
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Total Habits</p>
+                <p className="text-lg sm:text-2xl font-bold text-foreground">{habits.length}</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
         <Card className="bg-card border-border/50">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-accent/10">
-                <CheckCircle2 className="h-5 w-5 text-accent" />
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 rounded-md sm:rounded-lg bg-accent/10 flex-shrink-0">
+                <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
               </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Completed</p>
-                <p className="text-2xl font-bold text-foreground">{monthlyStats.completedTasks}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-card border-border/50">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-warning/10">
-                <Clock className="h-5 w-5 text-warning" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Pending</p>
-                <p className="text-2xl font-bold text-foreground">{monthlyStats.pendingTasks}</p>
+              <div className="min-w-0">
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Completed</p>
+                <p className="text-lg sm:text-2xl font-bold text-foreground">{monthlyStats.completedTasks}</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
         <Card className="bg-card border-border/50">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-destructive/10">
-                <Flame className="h-5 w-5 text-destructive" />
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 rounded-md sm:rounded-lg bg-warning/10 flex-shrink-0">
+                <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-warning" />
               </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Current Streak</p>
-                <p className="text-2xl font-bold text-foreground">{currentStreak} days</p>
+              <div className="min-w-0">
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Pending</p>
+                <p className="text-lg sm:text-2xl font-bold text-foreground">{monthlyStats.pendingTasks}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-card border-border/50">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 rounded-md sm:rounded-lg bg-destructive/10 flex-shrink-0">
+                <Flame className="h-4 w-4 sm:h-5 sm:w-5 text-destructive" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Current Streak</p>
+                <p className="text-lg sm:text-2xl font-bold text-foreground">{currentStreak} days</p>
               </div>
             </div>
           </CardContent>
@@ -245,31 +245,31 @@ export function MonthlyReport({
       </div>
 
       {/* Charts Section */}
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Monthly Progress Graph */}
         <Card className="bg-card border-border/50">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-primary" />
+          <CardHeader className="pb-2 p-3 sm:p-6 sm:pb-2">
+            <CardTitle className="text-sm sm:text-base flex items-center gap-2">
+              <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
               Monthly Progress
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
             {monthProgress.some(p => p.total > 0) ? (
-              <ResponsiveContainer width="100%" height={200}>
-                <LineChart data={progressChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <ResponsiveContainer width="100%" height={160}>
+                <LineChart data={progressChartData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                   <XAxis
                     dataKey="displayDate"
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
+                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 9 }}
                     interval="preserveStartEnd"
                   />
                   <YAxis
                     domain={[0, 100]}
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
+                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 9 }}
                     tickFormatter={(v) => `${v}%`}
                   />
                   <Tooltip
@@ -277,10 +277,10 @@ export function MonthlyReport({
                       if (active && payload && payload.length) {
                         const data = payload[0].payload;
                         return (
-                          <div className="bg-card p-3 rounded-lg shadow-lg border border-border">
+                          <div className="bg-card p-2 sm:p-3 rounded-lg shadow-lg border border-border text-xs sm:text-sm">
                             <p className="font-semibold text-foreground">{data.displayDate}</p>
-                            <p className="text-sm text-primary">{Math.round(data.rate)}% completed</p>
-                            <p className="text-xs text-muted-foreground">{data.completed}/{data.total} tasks</p>
+                            <p className="text-primary">{Math.round(data.rate)}% completed</p>
+                            <p className="text-muted-foreground">{data.completed}/{data.total} tasks</p>
                           </div>
                         );
                       }
@@ -292,13 +292,13 @@ export function MonthlyReport({
                     dataKey="rate"
                     stroke="hsl(var(--primary))"
                     strokeWidth={2}
-                    dot={{ fill: 'hsl(var(--primary))', strokeWidth: 0, r: 3 }}
-                    activeDot={{ r: 6, fill: 'hsl(var(--primary))' }}
+                    dot={{ fill: 'hsl(var(--primary))', strokeWidth: 0, r: 2 }}
+                    activeDot={{ r: 5, fill: 'hsl(var(--primary))' }}
                   />
                 </LineChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-[200px] flex items-center justify-center text-muted-foreground text-sm">
+              <div className="h-[160px] flex items-center justify-center text-muted-foreground text-xs sm:text-sm">
                 No progress data yet
               </div>
             )}
@@ -307,28 +307,28 @@ export function MonthlyReport({
 
         {/* Monthly Mood Graph */}
         <Card className="bg-card border-border/50">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Heart className="h-4 w-4 text-accent" />
+          <CardHeader className="pb-2 p-3 sm:p-6 sm:pb-2">
+            <CardTitle className="text-sm sm:text-base flex items-center gap-2">
+              <Heart className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-accent" />
               Monthly Mood Trend
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <MoodChart data={monthMoodData} height={200} />
+          <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
+            <MoodChart data={monthMoodData} height={160} />
           </CardContent>
         </Card>
       </div>
 
       {/* Insights Section */}
       <Card className="bg-card border-border/50">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Star className="h-4 w-4 text-warning" />
+        <CardHeader className="pb-2 sm:pb-3 p-3 sm:p-6">
+          <CardTitle className="text-sm sm:text-base flex items-center gap-2">
+            <Star className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-warning" />
             Monthly Insights
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <CardContent className="p-3 sm:p-6 pt-0">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4">
             {/* Best Performing Week */}
             <InsightCard
               icon={Trophy}

@@ -154,30 +154,30 @@ const Profile = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-lg border-b border-border">
-        <div className="container max-w-2xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
-              <ArrowLeft className="h-5 w-5" />
+        <div className="container max-w-2xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={() => navigate('/')}>
+              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
             <div>
-              <h1 className="text-xl font-bold text-foreground">Profile Settings</h1>
-              <p className="text-sm text-muted-foreground">Manage your account</p>
+              <h1 className="text-lg sm:text-xl font-bold text-foreground">Profile Settings</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground">Manage your account</p>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="container max-w-2xl mx-auto px-4 py-8 space-y-6">
+      <main className="container max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-8 space-y-4 sm:space-y-6">
         {/* Avatar Section */}
         <Card className="shadow-card">
-          <CardHeader>
-            <CardTitle>Profile Picture</CardTitle>
-            <CardDescription>Click on the avatar to upload a new picture</CardDescription>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-base sm:text-lg">Profile Picture</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">Click on the avatar to upload a new picture</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col items-center gap-4">
+          <CardContent className="flex flex-col items-center gap-3 sm:gap-4 p-4 sm:p-6 pt-0">
             <div className="relative">
               <Avatar 
-                className="h-32 w-32 cursor-pointer ring-4 ring-primary/20 hover:ring-primary/40 transition-all"
+                className="h-24 w-24 sm:h-32 sm:w-32 cursor-pointer ring-4 ring-primary/20 hover:ring-primary/40 transition-all"
                 onClick={handleAvatarClick}
               >
                 <AvatarImage src={avatarUrl || undefined} alt="Profile" />

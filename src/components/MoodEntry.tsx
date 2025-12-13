@@ -69,21 +69,21 @@ export function MoodEntry({ date = new Date(), existingEntry, onSave }: MoodEntr
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Mood Slider */}
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-muted-foreground">How are you feeling?</span>
-          <div className="flex items-center gap-2">
-            <MoodIcon className={cn('h-6 w-6', moodInfo.color)} />
-            <span className="text-2xl font-bold" style={{ color: getMoodColor(mood) }}>
+          <span className="text-xs sm:text-sm font-medium text-muted-foreground">How are you feeling?</span>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <MoodIcon className={cn('h-5 w-5 sm:h-6 sm:w-6', moodInfo.color)} />
+            <span className="text-xl sm:text-2xl font-bold" style={{ color: getMoodColor(mood) }}>
               {mood}
             </span>
-            <span className="text-sm text-muted-foreground">/10</span>
+            <span className="text-xs sm:text-sm text-muted-foreground">/10</span>
           </div>
         </div>
         
-        <div className="relative pt-2 pb-4">
+        <div className="relative pt-1 sm:pt-2 pb-3 sm:pb-4">
           <Slider
             value={[mood]}
             min={1}
@@ -95,7 +95,7 @@ export function MoodEntry({ date = new Date(), existingEntry, onSave }: MoodEntr
             }}
             className="w-full"
           />
-          <div className="flex justify-between mt-2 text-xs text-muted-foreground">
+          <div className="flex justify-between mt-1.5 sm:mt-2 text-[10px] sm:text-xs text-muted-foreground">
             <span>1</span>
             <span>5</span>
             <span>10</span>
@@ -103,12 +103,12 @@ export function MoodEntry({ date = new Date(), existingEntry, onSave }: MoodEntr
         </div>
 
         {/* Visual mood indicator */}
-        <div className="flex justify-center gap-1">
+        <div className="flex justify-center gap-0.5 sm:gap-1">
           {Array.from({ length: 10 }, (_, i) => (
             <div
               key={i}
               className={cn(
-                'h-2 w-full max-w-[24px] rounded-full transition-all duration-200',
+                'h-1.5 sm:h-2 w-full max-w-[20px] sm:max-w-[24px] rounded-full transition-all duration-200',
                 i < mood ? 'opacity-100' : 'opacity-20'
               )}
               style={{ backgroundColor: getMoodColor(mood) }}
@@ -118,22 +118,22 @@ export function MoodEntry({ date = new Date(), existingEntry, onSave }: MoodEntr
       </div>
 
       {/* Tags */}
-      <div className="space-y-3">
-        <span className="text-sm font-medium text-muted-foreground">Tags (optional)</span>
-        <div className="flex flex-wrap gap-2">
+      <div className="space-y-2 sm:space-y-3">
+        <span className="text-xs sm:text-sm font-medium text-muted-foreground">Tags (optional)</span>
+        <div className="flex flex-wrap gap-1.5 sm:gap-2">
           {moodTags.map(({ value, label, icon: Icon }) => (
             <Badge
               key={value}
               variant={selectedTags.includes(value) ? 'default' : 'outline'}
               className={cn(
-                'cursor-pointer transition-all duration-200 hover:scale-105',
+                'cursor-pointer transition-all duration-200 hover:scale-105 text-[10px] sm:text-xs py-0.5 sm:py-1 px-1.5 sm:px-2',
                 selectedTags.includes(value)
                   ? 'bg-primary text-primary-foreground'
                   : 'hover:bg-secondary'
               )}
               onClick={() => toggleTag(value)}
             >
-              <Icon className="h-3 w-3 mr-1" />
+              <Icon className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
               {label}
             </Badge>
           ))}
@@ -141,8 +141,8 @@ export function MoodEntry({ date = new Date(), existingEntry, onSave }: MoodEntr
       </div>
 
       {/* Notes */}
-      <div className="space-y-3">
-        <span className="text-sm font-medium text-muted-foreground">Notes (optional)</span>
+      <div className="space-y-2 sm:space-y-3">
+        <span className="text-xs sm:text-sm font-medium text-muted-foreground">Notes (optional)</span>
         <Textarea
           placeholder="How was your day? What affected your mood?"
           value={notes}
@@ -150,14 +150,14 @@ export function MoodEntry({ date = new Date(), existingEntry, onSave }: MoodEntr
             setNotes(e.target.value);
             setHasChanges(true);
           }}
-          className="min-h-[80px] resize-none"
+          className="min-h-[60px] sm:min-h-[80px] resize-none text-sm"
         />
       </div>
 
       {/* Save Button */}
       <Button
         onClick={handleSave}
-        className="w-full gradient-primary text-primary-foreground"
+        className="w-full gradient-primary text-primary-foreground h-9 sm:h-10"
         disabled={!hasChanges && !!existingEntry}
       >
         {existingEntry ? 'Update Mood' : 'Save Mood'}
