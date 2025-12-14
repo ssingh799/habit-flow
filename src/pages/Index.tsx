@@ -52,6 +52,7 @@ const Index = () => {
     deleteHabit,
     toggleCompletion,
     isCompleted,
+    getCompletionDuration,
     getWeekProgress,
     getMonthProgress,
     getHabitsByCategory,
@@ -340,7 +341,8 @@ const Index = () => {
                   <HabitCard
                     habit={habit}
                     isCompleted={isCompleted(habit.id, dateStr)}
-                    onToggle={() => toggleCompletion(habit.id, dateStr)}
+                    durationSeconds={getCompletionDuration(habit.id, dateStr)}
+                    onToggle={(duration) => toggleCompletion(habit.id, dateStr, duration)}
                     onEdit={() => handleEdit(habit)}
                     onDelete={() => setDeletingHabit(habit)}
                   />
