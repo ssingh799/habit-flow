@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { MoodEntry, MoodTag } from '@/types/habit';
-import { format, subDays, parseISO } from 'date-fns';
+import { format, subDays, parseISO, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -113,19 +113,25 @@ export function useMood() {
     return data;
   }, [getMoodForDate]);
 
-  const getMonthMoodData = useCallback((days: number = 30, referenceDate: Date = new Date()): DailyMoodData[] => {
-    const data: DailyMoodData[] = [];
-    for (let i = days - 1; i >= 0; i--) {
-      const date = subDays(referenceDate, i);
-      const dateStr = format(date, 'yyyy-MM-dd');
+  const getMonthMoodData = useCallback((referenceDate: Date = new Date()): DailyMoodData[] => {
+    const monthStart = startOfMonth(referenceDate);
+    const monthEnd = endOfMonth(referenceDate);
+    const today = new Date();
+    
+    // For current month, only show up to today; for past months, show full month
+    const endDate = monthEnd > today ? today : monthEnd;
+    
+    const days = eachDayOfInterval({ start: monthStart, end: endDate });
+    
+    return days.map(day => {
+      const dateStr = format(day, 'yyyy-MM-dd');
       const entry = getMoodForDate(dateStr);
-      data.push({
+      return {
         date: dateStr,
-        displayDate: format(date, 'MMM d'),
+        displayDate: format(day, 'MMM d'),
         mood: entry?.mood ?? null,
-      });
-    }
-    return data;
+      };
+    });
   }, [getMoodForDate]);
 
   const getAverageMood = useCallback((days: number = 7): number | null => {

@@ -107,16 +107,15 @@ const Index = () => {
   const dateStr = format(selectedDate, 'yyyy-MM-dd');
   const todayStats = getTodayStats();
   const weekProgress = getWeekProgress(selectedDate);
-  const monthProgress = getMonthProgress(30);
+  const monthProgress = getMonthProgress();
   const todayMood = getTodayMood();
   const weekMoodData = getWeekMoodData();
-  const monthMoodData = getMonthMoodData(30);
+  const monthMoodData = getMonthMoodData();
   const avgMood = getAverageMood(7);
   
   // Report data for selected month
-  const reportEndDate = useMemo(() => endOfMonth(reportMonth), [reportMonth]);
-  const reportMonthProgress = useMemo(() => getMonthProgress(30, reportEndDate), [getMonthProgress, reportEndDate]);
-  const reportMonthMoodData = useMemo(() => getMonthMoodData(30, reportEndDate), [getMonthMoodData, reportEndDate]);
+  const reportMonthProgress = useMemo(() => getMonthProgress(reportMonth), [getMonthProgress, reportMonth]);
+  const reportMonthMoodData = useMemo(() => getMonthMoodData(reportMonth), [getMonthMoodData, reportMonth]);
 
   const filteredHabits =
     selectedCategory === 'all' ? habits : getHabitsByCategory(selectedCategory);
