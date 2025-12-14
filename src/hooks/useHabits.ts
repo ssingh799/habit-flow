@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Habit, HabitCompletion, Category, Frequency, DailyProgress } from '@/types/habit';
-import { format, startOfWeek, endOfWeek, eachDayOfInterval, subDays, parseISO } from 'date-fns';
+import { format, startOfWeek, endOfWeek, eachDayOfInterval, subDays, parseISO, startOfMonth, endOfMonth } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -190,15 +190,17 @@ export function useHabits() {
     return days.map(day => getDailyProgress(format(day, 'yyyy-MM-dd')));
   }, [getDailyProgress]);
 
-  const getMonthProgress = useCallback((days: number = 30, referenceDate: Date = new Date()): DailyProgress[] => {
-    const progress: DailyProgress[] = [];
+  const getMonthProgress = useCallback((referenceDate: Date = new Date()): DailyProgress[] => {
+    const monthStart = startOfMonth(referenceDate);
+    const monthEnd = endOfMonth(referenceDate);
+    const today = new Date();
     
-    for (let i = days - 1; i >= 0; i--) {
-      const date = subDays(referenceDate, i);
-      progress.push(getDailyProgress(format(date, 'yyyy-MM-dd')));
-    }
+    // For current month, only show up to today; for past months, show full month
+    const endDate = monthEnd > today ? today : monthEnd;
     
-    return progress;
+    const days = eachDayOfInterval({ start: monthStart, end: endDate });
+    
+    return days.map(day => getDailyProgress(format(day, 'yyyy-MM-dd')));
   }, [getDailyProgress]);
 
   const getHabitsByCategory = useCallback((category?: Category) => {
