@@ -43,6 +43,7 @@ export type Database = {
           completed: boolean
           created_at: string
           date: string
+          duration_seconds: number | null
           habit_id: string
           id: string
           user_id: string
@@ -51,6 +52,7 @@ export type Database = {
           completed?: boolean
           created_at?: string
           date: string
+          duration_seconds?: number | null
           habit_id: string
           id?: string
           user_id: string
@@ -59,6 +61,7 @@ export type Database = {
           completed?: boolean
           created_at?: string
           date?: string
+          duration_seconds?: number | null
           habit_id?: string
           id?: string
           user_id?: string

@@ -48,6 +48,7 @@ export function useHabits() {
           habitId: c.habit_id,
           date: c.date,
           completed: c.completed,
+          durationSeconds: c.duration_seconds,
         })));
       }
       
@@ -112,16 +113,20 @@ export function useHabits() {
     setCompletions(prev => prev.filter(c => c.habitId !== id));
   }, [toast]);
 
-  const toggleCompletion = useCallback(async (habitId: string, date: string) => {
+  const toggleCompletion = useCallback(async (habitId: string, date: string, durationSeconds?: number) => {
     if (!user) return;
 
     const existing = completions.find(c => c.habitId === habitId && c.date === date);
     
     if (existing) {
       // Update existing completion
+      const newCompleted = !existing.completed;
       const { error } = await supabase
         .from('habit_completions')
-        .update({ completed: !existing.completed })
+        .update({ 
+          completed: newCompleted,
+          duration_seconds: newCompleted ? (durationSeconds ?? existing.durationSeconds) : null
+        })
         .eq('habit_id', habitId)
         .eq('date', date);
 
@@ -133,7 +138,7 @@ export function useHabits() {
       setCompletions(prev => 
         prev.map(c => 
           c.habitId === habitId && c.date === date 
-            ? { ...c, completed: !c.completed }
+            ? { ...c, completed: newCompleted, durationSeconds: newCompleted ? (durationSeconds ?? c.durationSeconds) : null }
             : c
         )
       );
@@ -141,16 +146,27 @@ export function useHabits() {
       // Create new completion
       const { error } = await supabase
         .from('habit_completions')
-        .insert({ user_id: user.id, habit_id: habitId, date, completed: true });
+        .insert({ 
+          user_id: user.id, 
+          habit_id: habitId, 
+          date, 
+          completed: true,
+          duration_seconds: durationSeconds ?? null
+        });
 
       if (error) {
         toast({ title: 'Error saving completion', description: error.message, variant: 'destructive' });
         return;
       }
 
-      setCompletions(prev => [...prev, { habitId, date, completed: true }]);
+      setCompletions(prev => [...prev, { habitId, date, completed: true, durationSeconds: durationSeconds ?? null }]);
     }
   }, [user, completions, toast]);
+
+  const getCompletionDuration = useCallback((habitId: string, date: string): number | null => {
+    const completion = completions.find(c => c.habitId === habitId && c.date === date);
+    return completion?.durationSeconds ?? null;
+  }, [completions]);
 
   const isCompleted = useCallback((habitId: string, date: string) => {
     const completion = completions.find(c => c.habitId === habitId && c.date === date);
@@ -230,6 +246,7 @@ export function useHabits() {
     deleteHabit,
     toggleCompletion,
     isCompleted,
+    getCompletionDuration,
     getDailyProgress,
     getWeekProgress,
     getMonthProgress,
