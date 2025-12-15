@@ -120,7 +120,6 @@ const Index = () => {
 
   const filteredHabits =
     selectedCategory === 'all' ? habits : getHabitsByCategory(selectedCategory);
-  const dailyHabits = filteredHabits.filter((h) => h.frequency === 'daily');
 
   const handleEdit = (habit: Habit) => {
     setEditingHabit(habit);
@@ -324,15 +323,15 @@ const Index = () => {
             <h2 className="text-base sm:text-lg font-semibold text-foreground">
               Today's Habits
               <span className="ml-2 text-xs sm:text-sm font-normal text-muted-foreground">
-                ({dailyHabits.length} habits)
+                ({filteredHabits.length} habits)
               </span>
             </h2>
             <CategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} />
           </div>
 
-          {dailyHabits.length > 0 ? (
+          {filteredHabits.length > 0 ? (
             <div className="space-y-3">
-              {dailyHabits.map((habit, index) => (
+              {filteredHabits.map((habit, index) => (
                 <div
                   key={habit.id}
                   className="animate-slide-in"
