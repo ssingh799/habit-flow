@@ -174,17 +174,11 @@ export function useHabits() {
   }, [completions]);
 
   const getDailyProgress = useCallback((date: string): DailyProgress => {
+    // Include all habits that existed on or before this date
+    const dateObj = parseISO(date);
     const dayHabits = habits.filter(h => {
-      if (h.frequency === 'daily') return true;
-      if (h.frequency === 'weekly') {
-        const dayOfWeek = parseISO(date).getDay();
-        return dayOfWeek === 1;
-      }
-      if (h.frequency === 'monthly') {
-        const dayOfMonth = parseISO(date).getDate();
-        return dayOfMonth === 1;
-      }
-      return false;
+      const createdDate = parseISO(h.createdAt.split('T')[0]);
+      return createdDate <= dateObj;
     });
 
     const completed = dayHabits.filter(h => isCompleted(h.id, date)).length;
@@ -226,14 +220,14 @@ export function useHabits() {
 
   const getTodayStats = useCallback(() => {
     const today = format(new Date(), 'yyyy-MM-dd');
-    const dailyHabits = habits.filter(h => h.frequency === 'daily');
-    const completed = dailyHabits.filter(h => isCompleted(h.id, today)).length;
+    // Include all habits (not just daily) for today's stats
+    const completed = habits.filter(h => isCompleted(h.id, today)).length;
     
     return {
-      total: dailyHabits.length,
+      total: habits.length,
       completed,
-      pending: dailyHabits.length - completed,
-      rate: dailyHabits.length > 0 ? Math.round((completed / dailyHabits.length) * 100) : 0,
+      pending: habits.length - completed,
+      rate: habits.length > 0 ? Math.round((completed / habits.length) * 100) : 0,
     };
   }, [habits, isCompleted]);
 
