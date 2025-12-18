@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
+import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -63,6 +64,14 @@ const AppRoutes = () => (
       element={
         <ProtectedRoute>
           <Profile />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/chat"
+      element={
+        <ProtectedRoute>
+          <Chat />
         </ProtectedRoute>
       }
     />

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format, endOfMonth } from 'date-fns';
-import { Plus, Target, CheckCircle2, Clock, TrendingUp, Calendar, Smile, Heart, FileText, LogOut, User } from 'lucide-react';
+import { Plus, Target, CheckCircle2, Clock, TrendingUp, Calendar, Smile, Heart, FileText, LogOut, User, MessageSquare } from 'lucide-react';
 import { useHabits } from '@/hooks/useHabits';
 import { useMood } from '@/hooks/useMood';
 import { useAuth } from '@/contexts/AuthContext';
@@ -155,6 +155,15 @@ const Index = () => {
               >
                 <Plus className="h-4 w-4 sm:mr-2" />
                 <span className="hidden sm:inline">Add Habit</span>
+              </Button>
+              
+              <Button
+                onClick={() => navigate('/chat')}
+                variant="outline"
+                size="sm"
+                className="h-8 sm:h-9 px-2 sm:px-3"
+              >
+                <MessageSquare className="h-4 w-4" />
               </Button>
               
               <ThemeToggle />
