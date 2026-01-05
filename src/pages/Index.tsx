@@ -53,6 +53,7 @@ const Index = () => {
     toggleCompletion,
     isCompleted,
     getCompletionDuration,
+    getHabitsForDate,
     getWeekProgress,
     getMonthProgress,
     getHabitsByCategory,
@@ -118,8 +119,11 @@ const Index = () => {
   const reportMonthProgress = useMemo(() => getMonthProgress(reportMonth), [getMonthProgress, reportMonth]);
   const reportMonthMoodData = useMemo(() => getMonthMoodData(reportMonth), [getMonthMoodData, reportMonth]);
 
-  const filteredHabits =
-    selectedCategory === 'all' ? habits : getHabitsByCategory(selectedCategory);
+  // Get habits for the selected date, then optionally filter by category
+  const habitsForSelectedDate = getHabitsForDate(selectedDate);
+  const filteredHabits = selectedCategory === 'all' 
+    ? habitsForSelectedDate 
+    : habitsForSelectedDate.filter(h => h.category === selectedCategory);
 
   const handleEdit = (habit: Habit) => {
     setEditingHabit(habit);

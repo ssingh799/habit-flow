@@ -1,9 +1,38 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Habit, HabitCompletion, Category, Frequency, DailyProgress } from '@/types/habit';
-import { format, startOfWeek, endOfWeek, eachDayOfInterval, subDays, parseISO, startOfMonth, endOfMonth } from 'date-fns';
+import { format, startOfWeek, endOfWeek, eachDayOfInterval, subDays, parseISO, startOfMonth, endOfMonth, getDay, getDate } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+
+// Helper to check if a habit should be active on a given date based on its frequency
+const isHabitActiveOnDate = (habit: Habit, date: Date): boolean => {
+  const createdDate = parseISO(habit.createdAt.split('T')[0]);
+  
+  // Habit must exist on or before this date
+  if (createdDate > date) return false;
+  
+  switch (habit.frequency) {
+    case 'daily':
+      return true;
+    case 'weekly':
+      // Show weekly habits on the same day of the week they were created
+      return getDay(date) === getDay(createdDate);
+    case 'monthly':
+      // Show monthly habits on the same day of the month they were created
+      // Handle edge cases where the day doesn't exist in shorter months
+      const createdDayOfMonth = getDate(createdDate);
+      const currentDayOfMonth = getDate(date);
+      const lastDayOfMonth = getDate(endOfMonth(date));
+      // If the habit was created on day 31 but current month only has 30 days, show on last day
+      if (createdDayOfMonth > lastDayOfMonth) {
+        return currentDayOfMonth === lastDayOfMonth;
+      }
+      return currentDayOfMonth === createdDayOfMonth;
+    default:
+      return true;
+  }
+};
 
 export function useHabits() {
   const [habits, setHabits] = useState<Habit[]>([]);
@@ -173,13 +202,14 @@ export function useHabits() {
     return completion?.completed ?? false;
   }, [completions]);
 
+  // Get habits that should be active on a specific date (considering frequency)
+  const getHabitsForDate = useCallback((date: Date): Habit[] => {
+    return habits.filter(h => isHabitActiveOnDate(h, date));
+  }, [habits]);
+
   const getDailyProgress = useCallback((date: string): DailyProgress => {
-    // Include all habits that existed on or before this date
     const dateObj = parseISO(date);
-    const dayHabits = habits.filter(h => {
-      const createdDate = parseISO(h.createdAt.split('T')[0]);
-      return createdDate <= dateObj;
-    });
+    const dayHabits = getHabitsForDate(dateObj);
 
     const completed = dayHabits.filter(h => isCompleted(h.id, date)).length;
     const total = dayHabits.length;
@@ -190,7 +220,7 @@ export function useHabits() {
       total,
       rate: total > 0 ? (completed / total) * 100 : 0,
     };
-  }, [habits, isCompleted]);
+  }, [getHabitsForDate, isCompleted]);
 
   const getWeekProgress = useCallback((date: Date = new Date()): DailyProgress[] => {
     const start = startOfWeek(date, { weekStartsOn: 1 });
@@ -219,17 +249,18 @@ export function useHabits() {
   }, [habits]);
 
   const getTodayStats = useCallback(() => {
-    const today = format(new Date(), 'yyyy-MM-dd');
-    // Include all habits (not just daily) for today's stats
-    const completed = habits.filter(h => isCompleted(h.id, today)).length;
+    const today = new Date();
+    const todayStr = format(today, 'yyyy-MM-dd');
+    const todayHabits = getHabitsForDate(today);
+    const completed = todayHabits.filter(h => isCompleted(h.id, todayStr)).length;
     
     return {
-      total: habits.length,
+      total: todayHabits.length,
       completed,
-      pending: habits.length - completed,
-      rate: habits.length > 0 ? Math.round((completed / habits.length) * 100) : 0,
+      pending: todayHabits.length - completed,
+      rate: todayHabits.length > 0 ? Math.round((completed / todayHabits.length) * 100) : 0,
     };
-  }, [habits, isCompleted]);
+  }, [getHabitsForDate, isCompleted]);
 
   return {
     habits,
@@ -241,6 +272,7 @@ export function useHabits() {
     toggleCompletion,
     isCompleted,
     getCompletionDuration,
+    getHabitsForDate,
     getDailyProgress,
     getWeekProgress,
     getMonthProgress,
