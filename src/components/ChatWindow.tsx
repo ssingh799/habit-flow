@@ -5,9 +5,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Send, ArrowLeft } from 'lucide-react';
 import { useChat, Conversation } from '@/hooks/useChat';
 import { usePresence } from '@/hooks/usePresence';
+import { useTypingIndicator } from '@/hooks/useTypingIndicator';
 import { OnlineIndicator } from '@/components/OnlineIndicator';
+import { TypingIndicator } from '@/components/TypingIndicator';
 import { useAuth } from '@/contexts/AuthContext';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 
 interface ChatWindowProps {
@@ -18,11 +20,15 @@ interface ChatWindowProps {
 export function ChatWindow({ conversation, onBack }: ChatWindowProps) {
   const { user } = useAuth();
   const { messages, fetchMessages, sendMessage, subscribeToMessages } = useChat();
-  const { isOnline } = usePresence();
+  const { isOnline, getLastSeen } = usePresence();
+  const { typingUsers, sendTyping, stopTyping } = useTypingIndicator(conversation.id);
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  const otherUserOnline = isOnline(conversation.other_user?.user_id || '');
+  const otherUserId = conversation.other_user?.user_id || '';
+  const otherUserOnline = isOnline(otherUserId);
+  const otherUserLastSeen = getLastSeen(otherUserId);
+  const isOtherUserTyping = typingUsers.has(otherUserId);
 
   useEffect(() => {
     fetchMessages(conversation.id);
@@ -36,6 +42,7 @@ export function ChatWindow({ conversation, onBack }: ChatWindowProps) {
 
   const handleSend = async () => {
     if (!newMessage.trim()) return;
+    stopTyping();
     await sendMessage(conversation.id, newMessage);
     setNewMessage('');
   };
@@ -45,6 +52,23 @@ export function ChatWindow({ conversation, onBack }: ChatWindowProps) {
       e.preventDefault();
       handleSend();
     }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewMessage(e.target.value);
+    if (e.target.value.trim()) {
+      sendTyping();
+    } else {
+      stopTyping();
+    }
+  };
+
+  const getStatusText = () => {
+    if (otherUserOnline) return 'Online';
+    if (otherUserLastSeen) {
+      return `Last seen ${formatDistanceToNow(new Date(otherUserLastSeen), { addSuffix: true })}`;
+    }
+    return 'Offline';
   };
 
   return (
@@ -74,7 +98,7 @@ export function ChatWindow({ conversation, onBack }: ChatWindowProps) {
             {conversation.other_user?.display_name || 'Anonymous'}
           </span>
           <span className="text-xs text-muted-foreground">
-            {otherUserOnline ? 'Online' : 'Offline'}
+            {isOtherUserTyping ? 'typing...' : getStatusText()}
           </span>
         </div>
       </div>
@@ -109,6 +133,13 @@ export function ChatWindow({ conversation, onBack }: ChatWindowProps) {
             </div>
           );
         })}
+        {isOtherUserTyping && (
+          <div className="flex justify-start">
+            <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-2">
+              <TypingIndicator />
+            </div>
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
 
@@ -118,7 +149,7 @@ export function ChatWindow({ conversation, onBack }: ChatWindowProps) {
           <Input
             placeholder="Type a message..."
             value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
+            onChange={handleInputChange}
             onKeyPress={handleKeyPress}
             className="flex-1"
           />
