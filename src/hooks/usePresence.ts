@@ -2,9 +2,15 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
+interface PresenceState {
+  user_id: string;
+  online_at: string;
+}
+
 export function usePresence() {
   const { user } = useAuth();
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
+  const [lastSeen, setLastSeen] = useState<Map<string, string>>(new Map());
 
   useEffect(() => {
     if (!user) return;
@@ -35,6 +41,8 @@ export function usePresence() {
           next.delete(key);
           return next;
         });
+        // Store last seen time when user goes offline
+        setLastSeen((prev) => new Map(prev).set(key, new Date().toISOString()));
       })
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
@@ -55,5 +63,10 @@ export function usePresence() {
     [onlineUsers]
   );
 
-  return { onlineUsers, isOnline };
+  const getLastSeen = useCallback(
+    (userId: string) => lastSeen.get(userId) || null,
+    [lastSeen]
+  );
+
+  return { onlineUsers, isOnline, lastSeen, getLastSeen };
 }
