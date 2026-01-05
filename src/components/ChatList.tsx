@@ -1,5 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useChat, Conversation } from '@/hooks/useChat';
+import { usePresence } from '@/hooks/usePresence';
+import { OnlineIndicator } from '@/components/OnlineIndicator';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -10,6 +12,7 @@ interface ChatListProps {
 
 export function ChatList({ selectedConversation, onSelectConversation }: ChatListProps) {
   const { conversations } = useChat();
+  const { isOnline } = usePresence();
 
   if (conversations.length === 0) {
     return (
@@ -32,12 +35,19 @@ export function ChatList({ selectedConversation, onSelectConversation }: ChatLis
               : 'bg-muted/50 hover:bg-muted'
           )}
         >
-          <Avatar className="h-12 w-12">
-            <AvatarImage src={convo.other_user?.avatar_url || ''} />
-            <AvatarFallback>
-              {convo.other_user?.display_name?.[0]?.toUpperCase() || 'U'}
-            </AvatarFallback>
-          </Avatar>
+          <div className="relative">
+            <Avatar className="h-12 w-12">
+              <AvatarImage src={convo.other_user?.avatar_url || ''} />
+              <AvatarFallback>
+                {convo.other_user?.display_name?.[0]?.toUpperCase() || 'U'}
+              </AvatarFallback>
+            </Avatar>
+            <OnlineIndicator
+              isOnline={isOnline(convo.other_user?.user_id || '')}
+              className="absolute bottom-0 right-0"
+              size="sm"
+            />
+          </div>
           <div className="flex-1 min-w-0">
             <div className="flex justify-between items-baseline">
               <p className="font-medium truncate">

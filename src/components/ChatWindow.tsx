@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Send, ArrowLeft } from 'lucide-react';
 import { useChat, Conversation } from '@/hooks/useChat';
+import { usePresence } from '@/hooks/usePresence';
+import { OnlineIndicator } from '@/components/OnlineIndicator';
 import { useAuth } from '@/contexts/AuthContext';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -16,8 +18,11 @@ interface ChatWindowProps {
 export function ChatWindow({ conversation, onBack }: ChatWindowProps) {
   const { user } = useAuth();
   const { messages, fetchMessages, sendMessage, subscribeToMessages } = useChat();
+  const { isOnline } = usePresence();
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  const otherUserOnline = isOnline(conversation.other_user?.user_id || '');
 
   useEffect(() => {
     fetchMessages(conversation.id);
@@ -51,15 +56,27 @@ export function ChatWindow({ conversation, onBack }: ChatWindowProps) {
             <ArrowLeft className="h-5 w-5" />
           </Button>
         )}
-        <Avatar className="h-10 w-10">
-          <AvatarImage src={conversation.other_user?.avatar_url || ''} />
-          <AvatarFallback>
-            {conversation.other_user?.display_name?.[0]?.toUpperCase() || 'U'}
-          </AvatarFallback>
-        </Avatar>
-        <span className="font-semibold">
-          {conversation.other_user?.display_name || 'Anonymous'}
-        </span>
+        <div className="relative">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={conversation.other_user?.avatar_url || ''} />
+            <AvatarFallback>
+              {conversation.other_user?.display_name?.[0]?.toUpperCase() || 'U'}
+            </AvatarFallback>
+          </Avatar>
+          <OnlineIndicator
+            isOnline={otherUserOnline}
+            className="absolute bottom-0 right-0"
+            size="sm"
+          />
+        </div>
+        <div className="flex flex-col">
+          <span className="font-semibold">
+            {conversation.other_user?.display_name || 'Anonymous'}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            {otherUserOnline ? 'Online' : 'Offline'}
+          </span>
+        </div>
       </div>
 
       {/* Messages */}
