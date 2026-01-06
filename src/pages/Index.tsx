@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format, endOfMonth } from 'date-fns';
-import { Plus, Target, CheckCircle2, Clock, TrendingUp, Calendar, Smile, Heart, FileText, LogOut, User, MessageSquare } from 'lucide-react';
+import { Plus, Target, CheckCircle2, Clock, TrendingUp, Calendar, Smile, Heart, FileText, LogOut, User, MessageSquare, Trophy, Flame } from 'lucide-react';
 import { useHabits } from '@/hooks/useHabits';
 import { useMood } from '@/hooks/useMood';
+import { useStreaks } from '@/hooks/useStreaks';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Category, Habit } from '@/types/habit';
@@ -19,6 +20,9 @@ import { MoodEntry } from '@/components/MoodEntry';
 import { MoodChart } from '@/components/MoodChart';
 import { MonthlyReport } from '@/components/MonthlyReport';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { GamificationPanel } from '@/components/GamificationPanel';
+import { WellnessPanel } from '@/components/WellnessPanel';
+import { StreakBadge } from '@/components/StreakBadge';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -61,6 +65,14 @@ const Index = () => {
   } = useHabits();
 
   const {
+    streaks,
+    loading: streaksLoading,
+    updateStreak,
+    getStreak,
+    getLongestStreak,
+  } = useStreaks();
+
+  const {
     moodEntries,
     loading: moodLoading,
     setMood,
@@ -70,7 +82,7 @@ const Index = () => {
     getAverageMood,
   } = useMood();
 
-  const isLoading = habitsLoading || moodLoading;
+  const isLoading = habitsLoading || moodLoading || streaksLoading;
 
   // Fetch profile data for avatar
   useEffect(() => {
@@ -114,6 +126,7 @@ const Index = () => {
   const weekMoodData = getWeekMoodData();
   const monthMoodData = getMonthMoodData();
   const avgMood = getAverageMood(7);
+  const longestStreak = getLongestStreak();
   
   // Report data for selected month
   const reportMonthProgress = useMemo(() => getMonthProgress(reportMonth), [getMonthProgress, reportMonth]);
@@ -234,13 +247,23 @@ const Index = () => {
             trend={todayStats.rate >= 50 ? 'up' : 'down'}
           />
           <StatsCard
-            title="Avg Mood"
-            value={avgMood !== null ? avgMood.toString() : '-'}
-            subtitle="last 7 days"
-            icon={Heart}
-            trend={avgMood !== null ? (avgMood >= 6 ? 'up' : avgMood >= 4 ? 'neutral' : 'down') : undefined}
+            title="Best Streak"
+            value={longestStreak}
+            subtitle="days in a row"
+            icon={Flame}
+            trend={longestStreak >= 7 ? 'up' : 'neutral'}
             className="col-span-2 sm:col-span-1"
           />
+        </section>
+
+        {/* Wellness Section */}
+        <section className="animate-fade-in">
+          <WellnessPanel />
+        </section>
+
+        {/* Gamification Section */}
+        <section className="animate-fade-in">
+          <GamificationPanel />
         </section>
 
         {/* Week Calendar */}
