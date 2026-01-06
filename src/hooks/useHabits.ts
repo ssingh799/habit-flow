@@ -1,29 +1,32 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Habit, HabitCompletion, Category, Frequency, DailyProgress } from '@/types/habit';
-import { format, startOfWeek, endOfWeek, eachDayOfInterval, subDays, parseISO, startOfMonth, endOfMonth, getDay, getDate } from 'date-fns';
+import { format, startOfWeek, endOfWeek, eachDayOfInterval, parseISO, startOfMonth, endOfMonth, getDay, getDate, startOfDay } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
 // Helper to check if a habit should be active on a given date based on its frequency
-const isHabitActiveOnDate = (habit: Habit, date: Date): boolean => {
-  const createdDate = parseISO(habit.createdAt.split('T')[0]);
+export const isHabitActiveOnDate = (habit: Habit, date: Date): boolean => {
+  // Parse the createdAt date and normalize to start of day for consistent comparison
+  const createdDateStr = habit.createdAt.split('T')[0];
+  const createdDate = startOfDay(parseISO(createdDateStr));
+  const targetDate = startOfDay(date);
   
   // Habit must exist on or before this date
-  if (createdDate > date) return false;
+  if (createdDate > targetDate) return false;
   
   switch (habit.frequency) {
     case 'daily':
       return true;
     case 'weekly':
       // Show weekly habits on the same day of the week they were created
-      return getDay(date) === getDay(createdDate);
+      return getDay(targetDate) === getDay(createdDate);
     case 'monthly':
       // Show monthly habits on the same day of the month they were created
       // Handle edge cases where the day doesn't exist in shorter months
       const createdDayOfMonth = getDate(createdDate);
-      const currentDayOfMonth = getDate(date);
-      const lastDayOfMonth = getDate(endOfMonth(date));
+      const currentDayOfMonth = getDate(targetDate);
+      const lastDayOfMonth = getDate(endOfMonth(targetDate));
       // If the habit was created on day 31 but current month only has 30 days, show on last day
       if (createdDayOfMonth > lastDayOfMonth) {
         return currentDayOfMonth === lastDayOfMonth;
