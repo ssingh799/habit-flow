@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { format, parseISO, startOfWeek, endOfWeek, eachWeekOfInterval, subDays, subMonths, addMonths, endOfMonth, isSameMonth } from 'date-fns';
+import { format, parseISO, startOfWeek, endOfWeek, eachWeekOfInterval, subDays, subMonths, addMonths, endOfMonth, isSameMonth, eachDayOfInterval, startOfMonth } from 'date-fns';
 import { 
   Trophy, 
   Flame, 
@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { DailyProgress, Habit, HabitCompletion, MoodEntry } from '@/types/habit';
 import { DailyMoodData } from '@/hooks/useMood';
+import { isHabitActiveOnDate } from '@/hooks/useHabits';
 import { MoodChart } from './MoodChart';
 import { ProgressChart } from './ProgressChart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -152,29 +153,42 @@ export function MonthlyReport({
     } : null;
   }, [monthProgress]);
 
-  // Most consistent habit
+  // Most consistent habit (considering frequency)
   const mostConsistentHabit = useMemo(() => {
     if (habits.length === 0) return null;
     
+    // Get all days in the selected month up to today
+    const monthStart = startOfMonth(selectedMonth);
+    const monthEnd = endOfMonth(selectedMonth);
+    const today = new Date();
+    const endDate = monthEnd > today ? today : monthEnd;
+    const daysInRange = eachDayOfInterval({ start: monthStart, end: endDate });
+    
     const habitStats = habits.map(habit => {
+      // Count how many days this habit was supposed to be active
+      const activeDays = daysInRange.filter(day => isHabitActiveOnDate(habit, day));
+      const activeDatesStrings = activeDays.map(d => format(d, 'yyyy-MM-dd'));
+      
+      // Count completions for active days only
       const habitCompletions = completions.filter(c => 
-        c.habitId === habit.id && c.completed
+        c.habitId === habit.id && c.completed && activeDatesStrings.includes(c.date)
       );
-      const last30Days = monthProgress.map(p => p.date);
-      const completedInRange = habitCompletions.filter(c => 
-        last30Days.includes(c.date)
-      ).length;
+      
+      const totalActiveDays = activeDays.length;
+      const completedCount = habitCompletions.length;
       
       return {
         habit,
-        completions: completedInRange,
-        rate: last30Days.length > 0 ? (completedInRange / 30) * 100 : 0
+        completions: completedCount,
+        totalActive: totalActiveDays,
+        rate: totalActiveDays > 0 ? (completedCount / totalActiveDays) * 100 : 0
       };
     });
     
-    const best = habitStats.reduce((a, b) => a.completions > b.completions ? a : b);
+    // Find habit with highest completion rate (not just raw completions)
+    const best = habitStats.reduce((a, b) => a.rate > b.rate ? a : b);
     return best.completions > 0 ? best : null;
-  }, [habits, completions, monthProgress]);
+  }, [habits, completions, selectedMonth]);
 
   // Highest mood dates
   const highestMoodDates = useMemo(() => {
@@ -388,7 +402,7 @@ export function MonthlyReport({
               icon={Award}
               title="Most Consistent Habit"
               value={mostConsistentHabit ? mostConsistentHabit.habit.name : 'No data yet'}
-              subtitle={mostConsistentHabit ? `${mostConsistentHabit.completions} completions this month` : undefined}
+              subtitle={mostConsistentHabit ? `${Math.round(mostConsistentHabit.rate)}% (${mostConsistentHabit.completions}/${mostConsistentHabit.totalActive})` : undefined}
             />
             
             {/* Longest Streak */}
