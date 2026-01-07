@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Play, Pause, RotateCcw, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useMeditation } from '@/hooks/useMeditation';
 
 const PRESET_TIMES = [
   { label: '1 min', seconds: 60 },
@@ -15,7 +16,17 @@ export function MeditationTimer() {
   const [timeLeft, setTimeLeft] = useState(300);
   const [isRunning, setIsRunning] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [sessionLogged, setSessionLogged] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const { logSession, getTodayTotalMinutes } = useMeditation();
+
+  // Log session when timer completes
+  useEffect(() => {
+    if (timeLeft === 0 && !sessionLogged && selectedTime > 0) {
+      logSession(selectedTime);
+      setSessionLogged(true);
+    }
+  }, [timeLeft, sessionLogged, selectedTime, logSession]);
 
   useEffect(() => {
     if (isRunning && timeLeft > 0) {
@@ -24,7 +35,6 @@ export function MeditationTimer() {
           if (prev <= 1) {
             setIsRunning(false);
             if (soundEnabled) {
-              // Play completion sound
               const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2teleVTe');
               audio.play().catch(() => {});
             }
@@ -59,14 +69,18 @@ export function MeditationTimer() {
   const handleReset = () => {
     setIsRunning(false);
     setTimeLeft(selectedTime);
+    setSessionLogged(false);
   };
 
   const handleSelectTime = (seconds: number) => {
     if (!isRunning) {
       setSelectedTime(seconds);
       setTimeLeft(seconds);
+      setSessionLogged(false);
     }
   };
+
+  const todayMinutes = getTodayTotalMinutes();
 
   const progress = ((selectedTime - timeLeft) / selectedTime) * 100;
 
@@ -168,6 +182,12 @@ export function MeditationTimer() {
       {timeLeft === 0 && (
         <p className="text-center text-sm text-primary mt-3 animate-pulse">
           🎉 Great job! Session complete.
+        </p>
+      )}
+
+      {todayMinutes > 0 && (
+        <p className="text-center text-xs text-muted-foreground mt-2">
+          Today: {todayMinutes} min meditated
         </p>
       )}
     </div>
