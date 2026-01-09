@@ -5,6 +5,7 @@ import { Plus, Target, CheckCircle2, Clock, TrendingUp, Calendar, Smile, Heart, 
 import { useHabits } from '@/hooks/useHabits';
 import { useMood } from '@/hooks/useMood';
 import { useStreaks } from '@/hooks/useStreaks';
+import { useAutoUnlockAchievements } from '@/hooks/useAutoUnlockAchievements';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Category, Habit } from '@/types/habit';
@@ -81,6 +82,8 @@ const Index = () => {
     getMonthMoodData,
     getAverageMood,
   } = useMood();
+
+  const { checkAndUnlockAchievements } = useAutoUnlockAchievements();
 
   const isLoading = habitsLoading || moodLoading || streaksLoading;
 
