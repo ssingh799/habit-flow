@@ -1,12 +1,15 @@
-import { Trophy, Flame, Star, Award } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Trophy, Flame, Star, Award, ChevronRight } from 'lucide-react';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useStreaks } from '@/hooks/useStreaks';
 import { AchievementCard } from './AchievementCard';
 import { StreakBadge } from './StreakBadge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 
 export function GamificationPanel() {
+  const navigate = useNavigate();
   const { getAchievementWithStatus, getUnlockedCount, loading: achievementsLoading } = useAchievements();
   const { getLongestStreak, getTotalStreakDays, loading: streaksLoading } = useStreaks();
 
@@ -27,9 +30,20 @@ export function GamificationPanel() {
 
   return (
     <div className="bg-card rounded-xl p-4 shadow-card">
-      <div className="flex items-center gap-2 mb-4">
-        <Trophy className="h-5 w-5 text-amber-500" />
-        <h3 className="font-semibold text-foreground">Achievements & Streaks</h3>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Trophy className="h-5 w-5 text-amber-500" />
+          <h3 className="font-semibold text-foreground">Achievements & Streaks</h3>
+        </div>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => navigate('/achievements')}
+          className="text-muted-foreground hover:text-foreground"
+        >
+          View All
+          <ChevronRight className="h-4 w-4 ml-1" />
+        </Button>
       </div>
 
       {/* Stats Summary */}

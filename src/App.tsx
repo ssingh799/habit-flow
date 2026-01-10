@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import Chat from "./pages/Chat";
+import Achievements from "./pages/Achievements";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -72,6 +73,14 @@ const AppRoutes = () => (
       element={
         <ProtectedRoute>
           <Chat />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/achievements"
+      element={
+        <ProtectedRoute>
+          <Achievements />
         </ProtectedRoute>
       }
     />
