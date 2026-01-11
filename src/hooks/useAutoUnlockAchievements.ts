@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAchievements } from './useAchievements';
+import { useAchievementCelebration } from './useAchievementCelebration';
 import { toast } from 'sonner';
 
 interface AchievementCriteria {
@@ -18,6 +19,7 @@ interface AchievementCriteria {
 export function useAutoUnlockAchievements() {
   const { user } = useAuth();
   const { achievements, userAchievements, unlockAchievement, refetch } = useAchievements();
+  const { celebrate } = useAchievementCelebration();
   const hasChecked = useRef(false);
 
   const checkAndUnlockAchievements = useCallback(async () => {
@@ -63,6 +65,7 @@ export function useAutoUnlockAchievements() {
       if (criteriaValue >= achievement.requirementValue) {
         const success = await unlockAchievement(achievement.id);
         if (success) {
+          celebrate();
           toast.success(`🏆 Achievement Unlocked: ${achievement.name}!`, {
             description: achievement.description,
             duration: 5000,
@@ -70,7 +73,7 @@ export function useAutoUnlockAchievements() {
         }
       }
     }
-  }, [user, achievements, userAchievements, unlockAchievement]);
+  }, [user, achievements, userAchievements, unlockAchievement, celebrate]);
 
   // Check on mount and when data changes
   useEffect(() => {
