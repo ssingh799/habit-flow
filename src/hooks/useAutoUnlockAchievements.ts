@@ -25,6 +25,9 @@ export function useAutoUnlockAchievements() {
   const checkAndUnlockAchievements = useCallback(async () => {
     if (!user || achievements.length === 0) return;
 
+    // Get already unlocked achievement IDs from current state
+    const alreadyUnlockedIds = new Set(userAchievements.map(ua => ua.achievementId));
+
     // Fetch all required data in parallel
     const [
       { data: completions },
@@ -53,17 +56,16 @@ export function useAutoUnlockAchievements() {
       mood_entries: moodEntries?.length || 0,
       early_completion: hasEarlyCompletion(completions || []) ? 1 : 0,
     };
-
-    // Check each achievement
-    const unlockedIds = userAchievements.map(ua => ua.achievementId);
     
     for (const achievement of achievements) {
-      if (unlockedIds.includes(achievement.id)) continue;
+      // Skip if already unlocked - this prevents confetti on page load
+      if (alreadyUnlockedIds.has(achievement.id)) continue;
 
       const criteriaValue = criteria[achievement.requirementType as keyof AchievementCriteria] || 0;
       
       if (criteriaValue >= achievement.requirementValue) {
         const success = await unlockAchievement(achievement.id);
+        // Only celebrate if this is a NEW unlock (success means it wasn't already unlocked)
         if (success) {
           celebrate();
           toast.success(`🏆 Achievement Unlocked: ${achievement.name}!`, {
