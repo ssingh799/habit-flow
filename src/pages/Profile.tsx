@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Camera, Save, User, Mail, Calendar } from 'lucide-react';
+import { ArrowLeft, Camera, Save, User, Mail, Calendar, Scale, Ruler, Users } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -8,8 +8,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { NotificationSettings } from '@/components/NotificationSettings';
+import { BMIChart } from '@/components/BMIChart';
 import { format } from 'date-fns';
 
 interface Profile {
@@ -19,6 +21,10 @@ interface Profile {
   avatar_url: string | null;
   created_at: string;
   updated_at: string;
+  weight_kg: number | null;
+  height_cm: number | null;
+  date_of_birth: string | null;
+  gender: string | null;
 }
 
 const Profile = () => {
@@ -30,6 +36,10 @@ const Profile = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [displayName, setDisplayName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [weightKg, setWeightKg] = useState<string>('');
+  const [heightCm, setHeightCm] = useState<string>('');
+  const [dateOfBirth, setDateOfBirth] = useState<string>('');
+  const [gender, setGender] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -47,9 +57,13 @@ const Profile = () => {
       if (error) {
         toast({ title: 'Error loading profile', description: error.message, variant: 'destructive' });
       } else if (data) {
-        setProfile(data);
+        setProfile(data as Profile);
         setDisplayName(data.display_name || '');
         setAvatarUrl(data.avatar_url);
+        setWeightKg(data.weight_kg?.toString() || '');
+        setHeightCm(data.height_cm?.toString() || '');
+        setDateOfBirth(data.date_of_birth || '');
+        setGender(data.gender || '');
       }
       setIsLoading(false);
     };
@@ -123,7 +137,13 @@ const Profile = () => {
 
     const { error } = await supabase
       .from('profiles')
-      .update({ display_name: displayName || null })
+      .update({ 
+        display_name: displayName || null,
+        weight_kg: weightKg ? parseFloat(weightKg) : null,
+        height_cm: heightCm ? parseFloat(heightCm) : null,
+        date_of_birth: dateOfBirth || null,
+        gender: gender || null,
+      })
       .eq('user_id', user.id);
 
     if (error) {
@@ -253,6 +273,88 @@ const Profile = () => {
                 />
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Fitness Data */}
+        <Card className="shadow-card">
+          <CardHeader>
+            <CardTitle>Fitness Data</CardTitle>
+            <CardDescription>Track your body metrics for health insights</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="weight">Weight (kg)</Label>
+                <div className="relative">
+                  <Scale className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="weight"
+                    type="number"
+                    placeholder="70"
+                    value={weightKg}
+                    onChange={(e) => setWeightKg(e.target.value)}
+                    className="pl-10"
+                    min="20"
+                    max="300"
+                    step="0.1"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="height">Height (cm)</Label>
+                <div className="relative">
+                  <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="height"
+                    type="number"
+                    placeholder="170"
+                    value={heightCm}
+                    onChange={(e) => setHeightCm(e.target.value)}
+                    className="pl-10"
+                    min="50"
+                    max="250"
+                    step="1"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="dob">Date of Birth</Label>
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="dob"
+                    type="date"
+                    value={dateOfBirth}
+                    onChange={(e) => setDateOfBirth(e.target.value)}
+                    className="pl-10"
+                    max={format(new Date(), 'yyyy-MM-dd')}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="gender">Gender</Label>
+                <Select value={gender} onValueChange={setGender}>
+                  <SelectTrigger className="w-full">
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                      <SelectValue placeholder="Select gender" />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                    <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
 
             <Button 
               onClick={handleSave} 
@@ -264,6 +366,12 @@ const Profile = () => {
             </Button>
           </CardContent>
         </Card>
+
+        {/* BMI Chart */}
+        <BMIChart 
+          weight={weightKg ? parseFloat(weightKg) : null} 
+          height={heightCm ? parseFloat(heightCm) : null} 
+        />
 
         {/* Notification Settings */}
         <NotificationSettings />
