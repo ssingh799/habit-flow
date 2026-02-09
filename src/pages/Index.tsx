@@ -24,6 +24,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { GamificationPanel } from '@/components/GamificationPanel';
 import { WellnessPanel } from '@/components/WellnessPanel';
 import { StreakBadge } from '@/components/StreakBadge';
+import { BlogFeed } from '@/components/BlogFeed';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -221,6 +222,11 @@ const Index = () => {
       )}
 
       <main className="container max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-8">
+        {/* Blog Feed */}
+        <section className="animate-fade-in">
+          <BlogFeed />
+        </section>
+
         {/* Stats Cards */}
         <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4 animate-fade-in">
           <StatsCard
