@@ -28,6 +28,17 @@ serve(async (req) => {
   }
 
   try {
+    // Verify invocation secret to prevent unauthorized access
+    const functionSecret = Deno.env.get("FUNCTION_INVOCATION_SECRET");
+    const providedSecret = req.headers.get("x-function-secret");
+    
+    if (!functionSecret || providedSecret !== functionSecret) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const firebaseServerKey = Deno.env.get("FIREBASE_SERVER_KEY");

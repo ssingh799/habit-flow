@@ -57,11 +57,19 @@ export function useChat() {
 
     setLoading(true);
     try {
+      // Sanitize query to prevent PostgREST filter injection
+      const sanitizedQuery = query.trim().replace(/[(),.*%_]/g, '').substring(0, 50);
+      if (sanitizedQuery.length < 1) {
+        setSearchResults([]);
+        setLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .neq('user_id', user.id)
-        .or(`display_name.ilike.%${query}%`);
+        .ilike('display_name', `%${sanitizedQuery}%`);
 
       if (error) throw error;
       setSearchResults(data || []);
