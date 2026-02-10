@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format, endOfMonth } from 'date-fns';
-import { Plus, Target, CheckCircle2, Clock, TrendingUp, Calendar, Smile, Heart, FileText, LogOut, User, MessageSquare, Trophy, Flame } from 'lucide-react';
+import { Plus, Target, CheckCircle2, Clock, TrendingUp, Calendar, Smile, Heart, FileText, LogOut, User, MessageSquare, Trophy, Flame, BookOpen } from 'lucide-react';
 import { useHabits } from '@/hooks/useHabits';
 import { useMood } from '@/hooks/useMood';
 import { useStreaks } from '@/hooks/useStreaks';
@@ -24,7 +24,6 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { GamificationPanel } from '@/components/GamificationPanel';
 import { WellnessPanel } from '@/components/WellnessPanel';
 import { StreakBadge } from '@/components/StreakBadge';
-import { BlogFeed } from '@/components/BlogFeed';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -179,6 +178,15 @@ const Index = () => {
               </Button>
               
               <Button
+                onClick={() => navigate('/blog')}
+                variant="outline"
+                size="sm"
+                className="h-8 sm:h-9 px-2 sm:px-3"
+              >
+                <BookOpen className="h-4 w-4" />
+              </Button>
+
+              <Button
                 onClick={() => navigate('/chat')}
                 variant="outline"
                 size="sm"
@@ -222,11 +230,6 @@ const Index = () => {
       )}
 
       <main className="container max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-8">
-        {/* Blog Feed */}
-        <section className="animate-fade-in">
-          <BlogFeed />
-        </section>
-
         {/* Stats Cards */}
         <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4 animate-fade-in">
           <StatsCard
